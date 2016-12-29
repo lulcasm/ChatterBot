@@ -1,5 +1,4 @@
 import uuid
-from chatterbot.queues import ResponseQueue
 
 
 class StatementManager(object):
@@ -25,7 +24,6 @@ class StatementManager(object):
         """
         Add a statement to the conversation.
         """
-        statement.conversation_id = self.conversation_id
         self.storage.update(statement)
 
     def count(self):
@@ -60,7 +58,6 @@ class Session(object):
         """
         statements = self.statements.all()
         if statements:
-            # Return the latest output statement (This should be ordering them by date to get the latest)
             return statements[1]
         return None
 

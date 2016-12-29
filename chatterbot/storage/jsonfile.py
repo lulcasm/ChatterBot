@@ -29,14 +29,13 @@ class JsonFileStorageAdapter(StorageAdapter):
         database_path = self.kwargs.get('database', 'database.db')
         self.database = Database(database_path)
 
+        # Create the statements document as an empty list
+        self.database['statements'] = []
+
         self.adapter_supports_queries = False
 
-    def _keys(self):
-        # The value has to be cast as a list for Python 3 compatibility
-        return list(self.database[0].keys())
-
     def count(self):
-        return len(self._keys())
+        return len(self.database['statements'].keys())
 
     def find(self, statement_text):
         values = self.database.data(key=statement_text)
@@ -131,14 +130,10 @@ class JsonFileStorageAdapter(StorageAdapter):
 
         order_by = kwargs.pop('order_by', None)
 
-        for key in self._keys():
-            values = self.database.data(key=key)
+        for statement in self.database['statements']:
 
-            # Add the text attribute to the values
-            values['text'] = key
-
-            if self._all_kwargs_match_values(kwargs, values):
-                results.append(self.json_to_object(values))
+            if self._all_kwargs_match_values(kwargs, statement):
+                results.append(self.json_to_object(statement))
 
         if order_by:
 
@@ -154,18 +149,16 @@ class JsonFileStorageAdapter(StorageAdapter):
         """
         Update a statement in the database.
         """
-        data = statement.serialize()
+        statements = self.database['statements']
 
-        # Remove the text key from the data
-        del data['text']
-        self.database.data(key=statement.text, value=data)
+        statements.append(statement.serialize())
 
         # Make sure that an entry for each response exists
-        for response_statement in statement.in_response_to:
-            response = self.find(response_statement.text)
-            if not response:
-                response = self.Statement(response_statement.text)
-                self.update(response)
+        if statement.in_response_to:
+            response = self.Statement(statement.in_response_to.text)
+            statements.append(statement.in_response_to.serialize())
+
+        self.database.data(key='statements', value=statements)
 
         return statement
 
@@ -175,8 +168,8 @@ class JsonFileStorageAdapter(StorageAdapter):
         if self.count() < 1:
             raise self.EmptyDatabaseException()
 
-        statement = choice(self._keys())
-        return self.find(statement)
+        statement = choice(self.database['statements'])
+        return statement
 
     def drop(self):
         """

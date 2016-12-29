@@ -44,13 +44,10 @@ class ChatterBotView(ChatterBotViewMixin, View):
     """
 
     def _serialize_conversation(self, session):
-        if session.conversation.empty():
-            return []
-
         conversation = []
 
-        for statement, response in session.conversation:
-            conversation.append([statement.serialize(), response.serialize()])
+        for statement in session.statements:
+            conversation.append(statement.serialize())
 
         return conversation
 

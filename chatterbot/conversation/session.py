@@ -16,7 +16,10 @@ class StatementManager(object):
         """
         Return all statements in the conversation.
         """
-        return self.storage.filter(conversation__id=self.conversation_id)
+        return self.storage.filter(
+            conversation__id=self.conversation_id,
+            order_by='created_at'
+        )
 
     def add(self, statement):
         """
@@ -24,6 +27,12 @@ class StatementManager(object):
         """
         statement.conversation_id = self.conversation_id
         self.storage.update(statement)
+
+    def count(self):
+        return len(self.all())
+
+    def exists(self):
+        return self.count() > 0
 
 
 class Session(object):
@@ -52,7 +61,7 @@ class Session(object):
         statements = self.statements.all()
         if statements:
             # Return the latest output statement (This should be ordering them by date to get the latest)
-            return statements[-1]
+            return statements[1]
         return None
 
 

@@ -46,7 +46,7 @@ class ChatterBotResponseTestCase(ChatBotTestCase):
             self.chatbot.default_session.id_string
         )
 
-        self.assertIn(statement_text, session.conversation[0])
+        self.assertIn(statement_text, session.statements.all())
         self.assertEqual(response, statement_text)
 
     def test_response_known(self):

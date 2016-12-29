@@ -1,4 +1,4 @@
-from chatterbot.conversation import Conversation
+from chatterbot.conversation import Statement, Conversation
 from chatterbot.conversation.session import ConversationSessionManager
 from .base_case import ChatBotTestCase
 
@@ -41,11 +41,13 @@ class ConversationSessionManagerTestCase(ChatBotTestCase):
 
     def test_update(self):
         session = self.manager.new()
-        self.manager.update(session.id_string, ('A', 'B', ))
+        self.manager.update(session.id_string, (Statement('A'), Statement('B'), ))
 
         session_ids = list(self.manager.sessions.keys())
         session_id = session_ids[0]
 
         self.assertEqual(len(session_ids), 1)
-        self.assertEqual(len(self.manager.get(session_id).conversation), 1)
-        self.assertEqual(('A', 'B', ), self.manager.get(session_id).conversation[0])
+        self.assertEqual(self.manager.get(session_id).statements.count(), 2)
+        self.assertEqual(Statement('A'), self.manager.get(session_id).statements.all()[0])
+        self.assertEqual(Statement('B'), self.manager.get(session_id).statements.all()[1])
+

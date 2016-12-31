@@ -54,12 +54,6 @@ class Statement(models.Model):
 
         self.extra_data = json.dumps(extra_data)
 
-    def add_response(self, statement):
-        """
-        Add a response to this statement.
-        """
-        self.response_statement_cache.append(statement)
-
     def serialize(self):
         """
         :returns: A dictionary representation of the statement object.

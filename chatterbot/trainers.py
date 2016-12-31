@@ -1,5 +1,5 @@
 import logging
-from .conversation import Statement, Response
+from .conversation import Statement
 
 
 class Trainer(object):
@@ -82,9 +82,7 @@ class ListTrainer(Trainer):
             statement = self.get_or_create(text)
 
             if statement_history:
-                statement.add_response(
-                    Response(statement_history[-1].text)
-                )
+                statement.in_response_to = statement_history[-1]
 
             statement_history.append(statement)
             self.storage.update(statement)
@@ -191,7 +189,7 @@ class TwitterTrainer(Trainer):
             if tweet.in_reply_to_status_id:
                 try:
                     status = self.api.GetStatus(tweet.in_reply_to_status_id)
-                    statement.add_response(Response(status.text))
+                    statement.in_response_to = Statement(status.text))
                     statements.append(statement)
                 except TwitterError as error:
                     self.logger.warning(str(error))
@@ -340,9 +338,7 @@ class UbuntuCorpusTrainer(Trainer):
                             statement.add_extra_data('addressing_speaker', row[2])
 
                         if statement_history:
-                            statement.add_response(
-                                Response(statement_history[-1].text)
-                            )
+                            statement.in_response_to = statement_history[-1]
 
                         statement_history.append(statement)
                         self.storage.update(statement)

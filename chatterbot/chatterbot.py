@@ -129,12 +129,8 @@ class ChatBot(object):
         """
         Learn that the statement provided is a valid response.
         """
-        from .conversation import Response
-
         if previous_statement:
-            statement.add_response(
-                Response(previous_statement.text)
-            )
+            statement.in_response_to = previous_statement
             self.logger.info('Adding "{}" as a response to "{}"'.format(
                 statement.text,
                 previous_statement.text

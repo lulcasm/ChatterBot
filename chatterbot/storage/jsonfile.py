@@ -59,24 +59,6 @@ class JsonFileStorageAdapter(StorageAdapter):
 
         self.database.delete(statement_text)
 
-    def deserialize_responses(self, response_list):
-        """
-        Takes the list of response items and returns
-        the list converted to Response objects.
-        """
-        proxy_statement = self.Statement('')
-
-        for response in response_list:
-            data = response.copy()
-            text = data['text']
-            del data['text']
-
-            proxy_statement.add_response(
-                Response(text, **data)
-            )
-
-        return proxy_statement.in_response_to
-
     def json_to_object(self, statement_data):
         """
         Converts a dictionary-like object to a Statement object.
@@ -86,8 +68,8 @@ class JsonFileStorageAdapter(StorageAdapter):
         statement_data = statement_data.copy()
 
         # Build the objects for the response list
-        statement_data['in_response_to'] = self.deserialize_responses(
-            statement_data['in_response_to']
+        statement_data['in_response_to'] = Statement(
+            **statement_data['in_response_to']
         )
 
         # Remove the text attribute from the values
